@@ -6,6 +6,7 @@ const highlightCode = hl.highlightCode;
 const HtmlSafe = @import("superhtml").HtmlSafe;
 const Ast = supermd.Ast;
 const Iter = Ast.Iter;
+const printGithubId = @import("githubids.zig").printGithubId;
 
 const log = std.log.scoped(.layout);
 
@@ -154,6 +155,14 @@ pub fn html(
                         },
                     };
 
+                    if (node.firstChild()) |child| {
+                        if (child.literal()) |heading_text| {
+                            try w.print("<h{} id=\"", .{node.headingLevel()});
+                            try printGithubId(heading_text, w);
+                            try w.print("\">", .{});
+                            continue;
+                        }
+                    }
                     try w.print("<h{}>", .{node.headingLevel()});
                 },
                 .exit => try w.print("</h{}>", .{node.headingLevel()}),
